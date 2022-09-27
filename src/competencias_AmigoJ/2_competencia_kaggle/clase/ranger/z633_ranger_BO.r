@@ -151,7 +151,7 @@ setwd("~/buckets/b1/")   #Establezco el Working Directory
 dataset  <- fread("./datasets/competencia2_2022.csv.gz", stringsAsFactors= TRUE)   #donde entreno
 
 #Feature engineering
-dataset[ ctrx_quarter_bool :=  ifelse( ctrx_quarter>14, 1, 0 ) ]
+dataset[ , ctrx_quarter_bool :=  ifelse( ctrx_quarter>14, 1, 0 ) ]
 dataset[ , mcuenta_corriente := (mcuenta_corriente_adicional + mcuenta_corriente)]
 dataset[ , cprestamos := (cprestamos_personales + cprestamos_prendarios + cprestamos_hipotecarios)]
 dataset[ , mprestamos := (mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios)]
