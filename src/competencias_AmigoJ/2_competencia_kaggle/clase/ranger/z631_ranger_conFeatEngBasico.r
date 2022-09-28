@@ -22,6 +22,31 @@ dataset  <- fread("./datasets/competencia2_2022.csv.gz", stringsAsFactors= TRUE)
 #Leo Breiman, ¿por que le temias a los nulos?
 dataset  <- na.roughfix( dataset[ foto_mes %in% c( 202103, 202105 ) ] )
 
+#Feature engineering
+dataset[ , ctrx_quarter_bool :=  ifelse( ctrx_quarter>14, 1, 0 ) ]
+dataset[ , mcuenta_corriente := (mcuenta_corriente_adicional + mcuenta_corriente)]
+dataset[ , cprestamos := (cprestamos_personales + cprestamos_prendarios + cprestamos_hipotecarios)]
+dataset[ , mprestamos := (mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios)]
+dataset[ , ccomisiones := (ccomisiones_mantenimiento + ccomisiones_otras)]
+dataset[ , mcomisiones := (mcomisiones_mantenimiento + mcomisiones_otras)]
+dataset[ , ctarjetas_transacciones := (ctarjeta_visa_transacciones + ctarjeta_master_transacciones)]
+
+dataset[,crtx_quarter:=NULL]
+dataset[,mcuenta_corriente_adicional:=NULL]
+dataset[,cprestamos_personales:=NULL]
+dataset[,cprestamos_prendarios:=NULL]
+dataset[,cprestamos_hipotecarios:=NULL]
+dataset[,mprestamos_personales:=NULL]
+dataset[,mprestamos_prendarios:=NULL]
+dataset[,mprestamos_hipotecarios:=NULL]
+dataset[,ccomisiones_mantenimiento:=NULL]
+dataset[,ccomisiones_otras:=NULL]
+dataset[,mcomisiones_mantenimiento:=NULL]
+dataset[,mcomisiones_otras:=NULL]
+dataset[,ctarjeta_visa_transacciones:=NULL]
+dataset[,ctarjeta_master_transacciones:=NULL]
+
+
 dtrain  <- dataset[ foto_mes == 202103 ]
 dapply  <- dataset[ foto_mes == 202105 ]
 
@@ -61,7 +86,7 @@ entrega  <- as.data.table( list( "numero_de_cliente"= dapply[  , numero_de_clien
 # HT  representa  Hiperparameter Tuning
 dir.create( "./exp/",  showWarnings = FALSE ) 
 dir.create( "./exp/KA6310/", showWarnings = FALSE )
-archivo_salida  <- "./exp/KA6310/KA6310_001_sinFeatEng.csv"
+archivo_salida  <- "./exp/KA6310/KA6310_001_conFeatEngBasico.csv"
 
 #genero el archivo para Kaggle
 fwrite( entrega, 
