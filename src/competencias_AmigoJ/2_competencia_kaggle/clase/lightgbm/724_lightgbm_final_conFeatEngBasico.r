@@ -16,7 +16,7 @@ require("lightgbm")
 #defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento  <- "KA7240"
+PARAM$experimento  <- "KA7240_v2_featEngBasico"
 
 PARAM$input$dataset       <- "./datasets/competencia2_2022.csv.gz"
 PARAM$input$training      <- c( 202103 )
@@ -37,7 +37,29 @@ setwd("C:/Users/jesia/Desktop/4_DMEyF/")   #setwd( "~/buckets/b1" )
 
 #cargo el dataset donde voy a entrenar
 dataset  <- fread(PARAM$input$dataset, stringsAsFactors= TRUE)
+#Feature engineering
+#dataset[ , ctrx_quarter_bool :=  ifelse( ctrx_quarter>14, 1, 0 ) ]
+dataset[ , mcuenta_corriente := (mcuenta_corriente_adicional + mcuenta_corriente)]
+dataset[ , cprestamos := (cprestamos_personales + cprestamos_prendarios + cprestamos_hipotecarios)]
+dataset[ , mprestamos := (mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios)]
+dataset[ , ccomisiones := (ccomisiones_mantenimiento + ccomisiones_otras)]
+dataset[ , mcomisiones := (mcomisiones_mantenimiento + mcomisiones_otras)]
+dataset[ , ctarjetas_transacciones := (ctarjeta_visa_transacciones + ctarjeta_master_transacciones)]
 
+#dataset[,crtx_quarter:=NULL]
+dataset[,mcuenta_corriente_adicional:=NULL]
+dataset[,cprestamos_personales:=NULL]
+dataset[,cprestamos_prendarios:=NULL]
+dataset[,cprestamos_hipotecarios:=NULL]
+dataset[,mprestamos_personales:=NULL]
+dataset[,mprestamos_prendarios:=NULL]
+dataset[,mprestamos_hipotecarios:=NULL]
+dataset[,ccomisiones_mantenimiento:=NULL]
+dataset[,ccomisiones_otras:=NULL]
+dataset[,mcomisiones_mantenimiento:=NULL]
+dataset[,mcomisiones_otras:=NULL]
+dataset[,ctarjeta_visa_transacciones:=NULL]
+dataset[,ctarjeta_master_transacciones:=NULL]
 
 #--------------------------------------
 

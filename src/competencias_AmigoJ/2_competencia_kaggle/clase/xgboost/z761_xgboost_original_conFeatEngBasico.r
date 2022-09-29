@@ -8,11 +8,33 @@ require("data.table")
 require("xgboost")
 
 #Aqui se debe poner la carpeta de la computadora local
-setwd("C:/Users/jesia/Desktop/4_DMEyF/") #setwd("~/buckets/b1/")   #Establezco el Working Directory
+setwd("C:/Users/jesia/Desktop/4_DMEyF/")  #setwd("~/buckets/b1/")   #Establezco el Working Directory
 
 #cargo el dataset donde voy a entrenar
 dataset  <- fread("./datasets/competencia2_2022.csv.gz", stringsAsFactors= TRUE)
+#Feature engineering
+#dataset[ , ctrx_quarter_bool :=  ifelse( ctrx_quarter>14, 1, 0 ) ]
+dataset[ , mcuenta_corriente := (mcuenta_corriente_adicional + mcuenta_corriente)]
+dataset[ , cprestamos := (cprestamos_personales + cprestamos_prendarios + cprestamos_hipotecarios)]
+dataset[ , mprestamos := (mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios)]
+dataset[ , ccomisiones := (ccomisiones_mantenimiento + ccomisiones_otras)]
+dataset[ , mcomisiones := (mcomisiones_mantenimiento + mcomisiones_otras)]
+dataset[ , ctarjetas_transacciones := (ctarjeta_visa_transacciones + ctarjeta_master_transacciones)]
 
+#dataset[,crtx_quarter:=NULL]
+dataset[,mcuenta_corriente_adicional:=NULL]
+dataset[,cprestamos_personales:=NULL]
+dataset[,cprestamos_prendarios:=NULL]
+dataset[,cprestamos_hipotecarios:=NULL]
+dataset[,mprestamos_personales:=NULL]
+dataset[,mprestamos_prendarios:=NULL]
+dataset[,mprestamos_hipotecarios:=NULL]
+dataset[,ccomisiones_mantenimiento:=NULL]
+dataset[,ccomisiones_otras:=NULL]
+dataset[,mcomisiones_mantenimiento:=NULL]
+dataset[,mcomisiones_otras:=NULL]
+dataset[,ctarjeta_visa_transacciones:=NULL]
+dataset[,ctarjeta_master_transacciones:=NULL]
 
 #paso la clase a binaria que tome valores {0,1}  enteros
 dataset[ foto_mes==202103, clase01 := ifelse( clase_ternaria=="BAJA+2", 1L, 0L) ]
@@ -37,10 +59,10 @@ modelo  <- xgb.train( data= dtrain,
                                    lambda=              0.0,
                                    subsample=           1.0,
                                    scale_pos_weight=    1.0
-                                   ),
+                      ),
                       #base_score= mean( getinfo(dtrain, "label")),
                       nrounds= 42#34
-                    )
+)
 
 
 #aplico el modelo a los datos nuevos
@@ -54,7 +76,7 @@ entrega  <- as.data.table( list( "numero_de_cliente"= dataset[ foto_mes==202105,
 
 dir.create( "./exp/",  showWarnings = FALSE ) 
 dir.create( "./exp/KA7610/", showWarnings = FALSE )
-archivo_salida  <- "./exp/KA7610/KA7610_001_v1.csv"
+archivo_salida  <- "./exp/KA7610/KA7610_001_v2.csv"
 
 #genero el archivo para Kaggle
 fwrite( entrega, 
