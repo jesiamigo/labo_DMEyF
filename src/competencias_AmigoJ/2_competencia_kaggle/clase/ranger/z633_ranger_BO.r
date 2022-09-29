@@ -186,8 +186,8 @@ dir.create( "./exp/HT6330/", showWarnings = FALSE )
 setwd("./exp/HT6330/")   #Establezco el Working Directory DEL EXPERIMENTO
 
 #en estos archivos quedan los resultados
-kbayesiana  <- "HT6330.RDATA"
-klog        <- "HT6330.txt"
+kbayesiana  <- "HT6330_v2.RDATA"
+klog        <- "HT6330_v2.txt"
 
 
 GLOBAL_iteracion  <- 0   #inicializo la variable global
