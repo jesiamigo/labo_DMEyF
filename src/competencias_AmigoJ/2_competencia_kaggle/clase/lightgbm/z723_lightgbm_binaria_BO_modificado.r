@@ -108,19 +108,25 @@ fganancia_logistic_lightgbm  <- function( probs, datos)
 
 EstimarGanancia_lightgbm  <- function( x )
 {
-  vector_ganancia <- c()
+  gc()  #libero memoria
   
-  for(semilla in PARAM$hyperparametertuning$semillas_azar){
-    gc()  #libero memoria
-    
-    #llevo el registro de la iteracion por la que voy
-    GLOBAL_iteracion  <<- GLOBAL_iteracion + 1
-    
-    #para usar en fganancia_logistic_lightgbm 
-    GLOBAL_envios <<- as.integer(x$envios/PARAM$hyperparametertuning$xval_folds)   #asigno la variable global
-    
-    kfolds  <- PARAM$hyperparametertuning$xval_folds   # cantidad de folds para cross validation
-    
+  #llevo el registro de la iteracion por la que voy
+  GLOBAL_iteracion  <<- GLOBAL_iteracion + 1
+  
+  #para usar en fganancia_logistic_lightgbm 
+  GLOBAL_envios <<- as.integer(x$envios/PARAM$hyperparametertuning$xval_folds)   #asigno la variable global
+  
+  kfolds  <- PARAM$hyperparametertuning$xval_folds   # cantidad de folds para cross validation
+  
+  tb_ganancias  <- data.table(  num_iterations= integer(),
+                                ganancia= numeric() )
+  
+  isemilla <- 0
+  
+  for(semilla in PARAM$hyperparametertuning$semillas_azar)
+  {
+    isemilla  <- isemilla + 1
+  
     param_basicos  <- list( objective= "binary",
                             metric= "custom",
                             first_metric_only= TRUE,
@@ -142,7 +148,7 @@ EstimarGanancia_lightgbm  <- function( x )
     
     param_completo  <- c( param_basicos, param_variable, x )
     
-    set.seed( semilla )
+    set.seed( PARAM$hyperparametertuning$semilla_azar )
     modelocv  <- lgb.cv( data= dtrain,
                          eval= fganancia_logistic_lightgbm,
                          stratified= TRUE, #sobre el cross validation
@@ -155,40 +161,49 @@ EstimarGanancia_lightgbm  <- function( x )
     ganancia  <- unlist(modelocv$record_evals$valid$ganancia$eval)[ modelocv$best_iter ]
     
     ganancia_normalizada  <-  ganancia* kfolds     #normailizo la ganancia
-    vector_ganancia <- c(vector_ganancia, ganancia_normalizada)
     
-    param_completo$num_iterations <- modelocv$best_iter  #asigno el mejor num_iterations
-    param_completo["early_stopping_rounds"]  <- NULL     #elimino de la lista el componente  "early_stopping_rounds"
+    #acumulo las ganancias en la tabla
+    tb_ganancias  <- rbind( tb_ganancias,
+                            list( modelocv$best_iter, ganancia_normalizada ) )
+  }
+
+  tb_ganancias[ , iteracion := GLOBAL_iteracion ]
+  fwrite( tb_ganancias,
+          file= "tb_ganancias.txt",
+          sep="\t",
+          append= TRUE )
+  
+  #grabo el PROMEDIO de la cantidad de iteraciones
+  param_completo$num_iterations <- tb_ganancias[ , as.integer(mean( num_iterations)) ]#modelocv$best_iter  #asigno el mejor num_iterations
+  param_completo["early_stopping_rounds"]  <- NULL     #elimino de la lista el componente  "early_stopping_rounds"
+  
+  #Voy registrando la importancia de variables
+  if( tb_ganancias[ , mean(ganancia)] >  GLOBAL_gananciamax )#if( ganancia_normalizada >  GLOBAL_gananciamax )
+  {
+    GLOBAL_gananciamax  <<- tb_ganancias[ , mean(ganancia)] #ganancia_normalizada
+    modelo  <- lgb.train( data= dtrain,
+                          param= param_completo,
+                          verbose= -100
+    )
     
-    #Voy registrando la importancia de variables
-    if( ganancia_normalizada >  GLOBAL_gananciamax )
-    {
-      GLOBAL_gananciamax  <<- ganancia_normalizada
-      modelo  <- lgb.train( data= dtrain,
-                            param= param_completo,
-                            verbose= -100
-      )
-      
-      tb_importancia  <- as.data.table( lgb.importance(modelo ) )
-      archivo_importancia  <- paste0( "impo_", GLOBAL_iteracion,".txt")
-      fwrite( tb_importancia,
-              file= archivo_importancia,
-              sep= "\t" )
-    }
-    
-    
-    #el lenguaje R permite asignarle ATRIBUTOS a cualquier variable
-    attr(ganancia_normalizada ,"extras" )  <- list("num_iterations"= modelocv$best_iter)  #esta es la forma de devolver un parametro extra
-    
-    #logueo 
-    xx  <- param_completo
-    xx$ganancia  <- ganancia_normalizada   #le agrego la ganancia
-    xx$iteracion <- GLOBAL_iteracion
-    loguear( xx, arch= klog )
+    tb_importancia  <- as.data.table( lgb.importance(modelo ) )
+    archivo_importancia  <- paste0( "impo_", GLOBAL_iteracion,".txt")
+    fwrite( tb_importancia,
+            file= archivo_importancia,
+            sep= "\t" )
   }
   
   
-  return( mean(vector_ganancia) )
+  #el lenguaje R permite asignarle ATRIBUTOS a cualquier variable
+  attr(ganancia_normalizada ,"extras" )  <- list("num_iterations"= tb_ganancias[ , as.integer(mean( num_iterations)) ] )  #esta es la forma de devolver un parametro extra#list("num_iterations"= modelocv$best_iter)  #esta es la forma de devolver un parametro extra
+  
+  #logueo 
+  xx  <- param_completo
+  xx$ganancia  <- tb_ganancias[ , mean(ganancia)] #ganancia_normalizada   #le agrego la ganancia
+  xx$iteracion <- GLOBAL_iteracion
+  loguear( xx, arch= klog )
+  
+  return( tb_ganancias[ , mean(ganancia)] )
 }
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
