@@ -33,7 +33,7 @@ PARAM$finalmodel$semilla           <- 124769
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #Aqui empieza el programa
-setwd("C:/Users/jesia/Desktop/4_DMEyF/")   #setwd( "~/buckets/b1" )
+setwd( "~/buckets/b1" )
 
 #cargo el dataset donde voy a entrenar
 dataset  <- fread(PARAM$input$dataset, stringsAsFactors= TRUE)
