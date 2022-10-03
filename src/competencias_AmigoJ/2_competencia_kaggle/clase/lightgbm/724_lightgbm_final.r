@@ -16,18 +16,18 @@ require("lightgbm")
 #defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento  <- "KA7240_HP_10repeat5foldcv_v4_67_FEbasico"
+PARAM$experimento  <- "KA7240_HP_10repeat5foldcv_v5_HP_mezclados"
 
 PARAM$input$dataset       <- "./datasets/competencia2_2022.csv.gz"
 PARAM$input$training      <- c( 202103 )
 PARAM$input$future        <- c( 202105 )
 
 PARAM$finalmodel$max_bin           <-     31
-PARAM$finalmodel$learning_rate     <-     0.141538723
-PARAM$finalmodel$num_iterations    <-    128
-PARAM$finalmodel$num_leaves        <-  1023
-PARAM$finalmodel$min_data_in_leaf  <-   7123
-PARAM$finalmodel$feature_fraction  <-   0.205092472
+PARAM$finalmodel$learning_rate     <-     0.015609025
+PARAM$finalmodel$num_iterations    <-    578
+PARAM$finalmodel$num_leaves        <-  5000
+PARAM$finalmodel$min_data_in_leaf  <-   5506
+PARAM$finalmodel$feature_fraction  <-   0.711307467
 PARAM$finalmodel$semilla           <- 954011
 
 #------------------------------------------------------------------------------
@@ -37,30 +37,6 @@ setwd( "~/buckets/b1" )
 
 #cargo el dataset donde voy a entrenar
 dataset  <- fread(PARAM$input$dataset, stringsAsFactors= TRUE)
-
-#Feature engineering
-#dataset[ , ctrx_quarter_bool :=  ifelse( ctrx_quarter>14, 1, 0 ) ]
-dataset[ , mcuenta_corriente := (mcuenta_corriente_adicional + mcuenta_corriente)]
-dataset[ , cprestamos := (cprestamos_personales + cprestamos_prendarios + cprestamos_hipotecarios)]
-dataset[ , mprestamos := (mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios)]
-dataset[ , ccomisiones := (ccomisiones_mantenimiento + ccomisiones_otras)]
-dataset[ , mcomisiones := (mcomisiones_mantenimiento + mcomisiones_otras)]
-dataset[ , ctarjetas_transacciones := (ctarjeta_visa_transacciones + ctarjeta_master_transacciones)]
-
-#dataset[,crtx_quarter:=NULL]
-dataset[,mcuenta_corriente_adicional:=NULL]
-dataset[,cprestamos_personales:=NULL]
-dataset[,cprestamos_prendarios:=NULL]
-dataset[,cprestamos_hipotecarios:=NULL]
-dataset[,mprestamos_personales:=NULL]
-dataset[,mprestamos_prendarios:=NULL]
-dataset[,mprestamos_hipotecarios:=NULL]
-dataset[,ccomisiones_mantenimiento:=NULL]
-dataset[,ccomisiones_otras:=NULL]
-dataset[,mcomisiones_mantenimiento:=NULL]
-dataset[,mcomisiones_otras:=NULL]
-dataset[,ctarjeta_visa_transacciones:=NULL]
-dataset[,ctarjeta_master_transacciones:=NULL]
 
 #--------------------------------------
 
