@@ -55,9 +55,10 @@ param_lgb_basicos  <- list(
    max_bin= 31,                    #por ahora, lo dejo fijo
    num_iterations= 9999,           #un numero muy grande, lo limita early_stopping_rounds
 
-   bagging_fraction= 1.0,          #por ahora, lo dejo fijo
-   pos_bagging_fraction= 1.0,      #por ahora, lo dejo fijo
-   neg_bagging_fraction= 1.0,      #por ahora, lo dejo fijo
+   bagging_freq= 1,
+   bagging_fraction= 0.8,          #por ahora, lo dejo fijo
+   pos_bagging_fraction= 0.8,      #por ahora, lo dejo fijo
+   neg_bagging_fraction= 0.8,      #por ahora, lo dejo fijo
 
    drop_rate=  0.1,                #solo se activa en  dart
    max_drop= 50,                   #solo se activa en  dart
