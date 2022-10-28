@@ -74,12 +74,12 @@ hs <- makeParamSet(
          makeNumericParam("learning_rate",    lower=    0.005, upper=    0.3),
          makeNumericParam("feature_fraction", lower=    0.2  , upper=    1.0),
          makeIntegerParam("min_data_in_leaf", lower=    0L   , upper=  8000L),
-         makeIntegerParam("num_leaves",       lower=   16L   , upper=  2048L)
+         makeIntegerParam("num_leaves",       lower=   16L   , upper=  5000L)
         )
 
 
 #si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-kBO_iteraciones  <- 50  #iteraciones de la Optimizacion Bayesiana
+kBO_iteraciones  <- 100  #iteraciones de la Optimizacion Bayesiana
 
 #------------------------------------------------------------------------------
 #graba a un archivo los componentes de lista
