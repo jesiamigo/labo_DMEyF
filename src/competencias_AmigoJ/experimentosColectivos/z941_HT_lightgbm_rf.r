@@ -55,11 +55,6 @@ param_lgb_basicos  <- list(
    max_bin= 31,                    #por ahora, lo dejo fijo
    num_iterations= 9999,           #un numero muy grande, lo limita early_stopping_rounds
 
-   bagging_freq= 1,
-   bagging_fraction= 0.8,          #por ahora, lo dejo fijo
-   pos_bagging_fraction= 0.8,      #por ahora, lo dejo fijo
-   neg_bagging_fraction= 0.8,      #por ahora, lo dejo fijo
-
    drop_rate=  0.1,                #solo se activa en  dart
    max_drop= 50,                   #solo se activa en  dart
    skip_drop= 0.5,                 #solo se activa en  dart
@@ -73,9 +68,8 @@ param_lgb_basicos  <- list(
 #Aqui se cargan los hiperparametros que se optimizan en la Bayesian Optimization
 hs <- makeParamSet( 
          makeNumericParam("learning_rate",    lower=    0.005, upper=    0.3),
-         makeNumericParam("feature_fraction", lower=    0.2  , upper=    1.0),
-         makeIntegerParam("min_data_in_leaf", lower=    0L   , upper=  8000L),
-         makeIntegerParam("num_leaves",       lower=   16L   , upper=  5000L)
+         makeNumericParam("bagging_freq",    lower=    0.001, upper=    1),
+         makeNumericParam("bagging_fraction", lower=    0.001  , upper=    1)
         )
 
 
