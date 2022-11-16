@@ -68,7 +68,7 @@ param_lgb_basicos  <- list(
 #Aqui se cargan los hiperparametros que se optimizan en la Bayesian Optimization
 hs <- makeParamSet( 
   makeNumericParam("learning_rate",    lower=    0.005, upper=    0.3),
-  makeIntegerParam("bagging_freq",    lower=    0L, upper=    2500L),
+  makeIntegerParam("bagging_freq",    lower=    0L, upper=    25cd lab00L),
   makeNumericParam("bagging_fraction", lower=    0.001  , upper=    1)
 )
 
