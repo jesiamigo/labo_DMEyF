@@ -15,24 +15,24 @@ require("data.table")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "TS9320_competencia_4_v2"
+PARAM$experimento <- "TS9320_competencia_4_v1"
 
-PARAM$exp_input  <- "FE9250_competencia_4_v2"
+PARAM$exp_input  <- "FE9250_competencia_4_v1"
 
 PARAM$future       <- c( 202109 )
 
-PARAM$final_train  <- c( 201909, 201910, 201911, 201912, 202101, 202102, 202103, 202104, 202105, 202106, 202107 )
+PARAM$final_train  <- c( 201909, 201910, 201911, 201912, 202001, 202002, 202003, 202004, 202005, 202007, 202008, 202009, 202010, 202011, 202012, 202101, 202102, 202103, 202104, 202105, 202106, 202107 )
 
-PARAM$train$training     <- c( 201907, 201908, 201909, 201910, 201911, 201912, 202101, 202102, 202103, 202104, 202105 )
+PARAM$train$training     <- c( 201907, 201908, 201909, 201910, 201911, 201912, 202001, 202002, 202003, 202004, 202005, 202007, 202008, 202009, 202010, 202011, 202012, 202101, 202102, 202103, 202104, 202105 )
 PARAM$train$validation   <- c( 202106 )
 PARAM$train$testing      <- c( 202107 )
 
 PARAM$train$sampling_total  <- 1.0  # 1.0 significa que NO se hace sampling total,  0.3 es quedarse con el 30% de TODOS los registros
-PARAM$train$undersampling_mayoritaria  <- 0.5   # 1.0 significa NO undersampling ,  0.1  es quedarse con el 10% de los CONTINUA
+PARAM$train$undersampling_mayoritaria  <- 0.4   # 1.0 significa NO undersampling ,  0.1  es quedarse con el 10% de los CONTINUA
 
 #Atencion, las semillas deben ser distintas
-PARAM$train$semilla_sampling  <- 954011   
-PARAM$train$semilla_under     <- 761213
+PARAM$train$semilla_sampling  <- 761213
+PARAM$train$semilla_under     <- 954011
 # FIN Parametros del script
 
 
@@ -89,8 +89,8 @@ dataset[ foto_mes %in% PARAM$train$training , azar_under := runif( nrow(dataset[
 
 dataset[  , fold_train := 0L ]
 dataset[ foto_mes %in% PARAM$train$training & 
-         ( azar_sampling <= PARAM$train$sampling_total ) &
-         ( azar_under <= PARAM$train$undersampling_mayoritaria | clase_ternaria %in% c( "BAJA+1", "BAJA+2" ) )
+           ( azar_sampling <= PARAM$train$sampling_total ) &
+           ( azar_under <= PARAM$train$undersampling_mayoritaria | clase_ternaria %in% c( "BAJA+1", "BAJA+2" ) )
          , fold_train := 1L ]
 
 #Se valida SIN sampling de ningun tipo

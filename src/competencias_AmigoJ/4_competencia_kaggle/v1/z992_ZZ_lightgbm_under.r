@@ -15,13 +15,13 @@ require("lightgbm")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento  <- "ZZ9420_competencia_4_v2"
-PARAM$exp_input  <- "HT9420_competencia_4_v2"
+PARAM$experimento  <- "ZZ9420_competencia_4_v1"
+PARAM$exp_input  <- "HT9420_competencia_4_v1"
 
 PARAM$modelos  <- 2
 # FIN Parametros del script
 
-ksemilla  <- 954011
+ksemilla  <- 657863
 
 #------------------------------------------------------------------------------
 options(error = function() { 
@@ -68,23 +68,23 @@ for( i in  1:PARAM$modelos )
 {
   parametros  <- as.list( copy( tb_log[ i ] ) )
   iteracion_bayesiana  <- parametros$iteracion_bayesiana
-
+  
   arch_modelo  <- paste0( "modelo_" ,
                           sprintf( "%02d", i ),
                           "_",
                           sprintf( "%03d", iteracion_bayesiana ),
                           ".model" )
-
-
+  
+  
   #creo CADA VEZ el dataset de lightgbm
   dtrain  <- lgb.Dataset( data=    data.matrix( dataset[ , campos_buenos, with=FALSE] ),
                           label=   dataset[ , clase01],
                           weight=  dataset[ , ifelse( clase_ternaria %in% c("BAJA+2"), 1.0000001, 1.0)],
                           free_raw_data= FALSE
-                        )
-
+  )
+  
   ganancia  <- parametros$ganancia
-
+  
   #elimino los parametros que no son de lightgbm
   parametros$experimento  <- NULL
   parametros$cols         <- NULL
@@ -94,7 +94,7 @@ for( i in  1:PARAM$modelos )
   parametros$estimulos    <- NULL
   parametros$ganancia     <- NULL
   parametros$iteracion_bayesiana  <- NULL
-
+  
   if( ! ("leaf_size_log" %in% names(parametros) ) )  stop( "El Hyperparameter Tuning debe tener en BO_log.txt  el pseudo hiperparametro  lead_size_log.\n" )
   if( ! ("coverage" %in% names(parametros) ) ) stop( "El Hyperparameter Tuning debe tener en BO_log.txt  el pseudo hiperparametro  coverage.\n" )
   
@@ -103,11 +103,11 @@ for( i in  1:PARAM$modelos )
   #Luego la cantidad de hojas en funcion del valor anterior, el coverage, y la cantidad de registros
   parametros$num_leaves  <-  pmin( 131072, pmax( 2,  round( parametros$coverage * nrow( dtrain ) / parametros$min_data_in_leaf ) ) )
   cat( "min_data_in_leaf:", parametros$min_data_in_leaf,  ",  num_leaves:", parametros$num_leaves, "\n" )
-
+  
   #ya no me hacen falta
   parametros$leaf_size_log  <- NULL
   parametros$coverage  <- NULL
-
+  
   #Utilizo la semilla definida en este script
   parametros$seed  <- ksemilla
   
@@ -116,11 +116,11 @@ for( i in  1:PARAM$modelos )
   modelo_final  <- lightgbm( data= dtrain,
                              param=  parametros,
                              verbose= -100 )
-
+  
   #grabo el modelo, achivo .model
   lgb.save( modelo_final,
             file= arch_modelo )
-
+  
   #creo y grabo la importancia de variables
   tb_importancia  <- as.data.table( lgb.importance( modelo_final ) )
   fwrite( tb_importancia,
@@ -130,40 +130,40 @@ for( i in  1:PARAM$modelos )
                         sprintf( "%03d", iteracion_bayesiana ),
                         ".txt" ),
           sep= "\t" )
-
-
+  
+  
   #genero la prediccion, Scoring
   prediccion  <- predict( modelo_final,
                           data.matrix( dfuture[ , campos_buenos, with=FALSE ] ) )
-
+  
   tb_prediccion  <- dfuture[  , list( numero_de_cliente, foto_mes ) ]
   tb_prediccion[ , prob := prediccion ]
-
-
+  
+  
   nom_pred  <- paste0( "pred_",
                        sprintf( "%02d", i ),
                        "_",
                        sprintf( "%03d", iteracion_bayesiana),
                        ".csv"  )
-
+  
   fwrite( tb_prediccion,
           file= nom_pred,
           sep= "\t" )
-
-
+  
+  
   #genero los archivos para Kaggle
   cortes  <- seq( from=  7000,
                   to=   11000,
                   by=     500 )
-
-
+  
+  
   setorder( tb_prediccion, -prob )
-
+  
   for( corte in cortes )
   {
     tb_prediccion[  , Predicted := 0L ]
     tb_prediccion[ 1:corte, Predicted := 1L ]
-
+    
     nom_submit  <- paste0( PARAM$experimento, 
                            "_",
                            sprintf( "%02d", i ),
@@ -172,14 +172,14 @@ for( i in  1:PARAM$modelos )
                            "_",
                            sprintf( "%05d", corte ),
                            ".csv" )
-
+    
     fwrite(  tb_prediccion[ , list( numero_de_cliente, Predicted ) ],
              file= nom_submit,
              sep= "," )
-
+    
   }
-
-
+  
+  
   #borro y limpio la memoria para la vuelta siguiente del for
   rm( tb_prediccion )
   rm( tb_importancia )
