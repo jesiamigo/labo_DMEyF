@@ -19,14 +19,14 @@ require("lightgbm")
 
 #Parametros del script
 PARAM  <- list()
-PARAM$experimento <- "FE9250_competencia_4_v2"
+PARAM$experimento <- "FE9250_competencia_4_v1"
 
 PARAM$exp_input  <- "DR9141_competencia_4_v1"
 
 PARAM$lag1  <- TRUE
 PARAM$lag2  <- TRUE
 PARAM$Tendencias  <- TRUE
-PARAM$RandomForest  <- TRUE          #No se puede poner en TRUE para la entrega oficial de la Tercera Competencia
+PARAM$RandomForest  <- FALSE          #No se puede poner en TRUE para la entrega oficial de la Tercera Competencia
 PARAM$CanaritosAsesinos  <- FALSE
 # FIN Parametros del script
 
@@ -119,7 +119,7 @@ cppFunction('NumericVector fhistC(NumericVector pcolumna, IntegerVector pdesde )
 #la tendencia es la pendiente de la recta que ajusta por cuadrados minimos
 #La funcionalidad de ratioavg es autoria de  Daiana Sparta,  UAustral  2021
 
-TendenciaYmuchomas  <- function( dataset, cols, ventana=6, tendencia=TRUE, minimo=TRUE, maximo=TRUE, promedio=TRUE, 
+TendenciaYmuchomas  <- function( dataset, cols, ventana=3, tendencia=TRUE, minimo=TRUE, maximo=TRUE, promedio=TRUE, 
                                  ratioavg=FALSE, ratiomax=FALSE)
 {
   gc()
